@@ -16,6 +16,6 @@ node_modules
 
 # IDEs and tools
 .idea
-/config.codekit3
 .vscode
+*.code-workspace
 
