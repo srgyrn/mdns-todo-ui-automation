@@ -1,6 +1,6 @@
 /* globals gauge*/
 "use strict";
-const { openBrowser, write, closeBrowser, text, focus, intercept, goto} = require('taiko');
+const { openBrowser, write, closeBrowser, text, focus, intercept, goto, click, $ } = require('taiko');
 const assert = require("assert");
 const headless = process.env.headless_chrome.toLowerCase() === 'true';
 const projectUrl = process.env.APP_URL;
@@ -15,17 +15,19 @@ afterSuite(async () => {
 });
 
 step("Goto homepage", async () => {
-    await goto(projectUrl)
-    await intercept(apiUrl, (request) => {request.response({body:'{[]}'})});
+    await intercept(apiUrl + "/item", { body: JSON.parse('{"data": []}') });
+    await goto(projectUrl);
 });
 
 step("Write <content>", async (content) => {
-    await focus($('#list-input'));
+    await focus($('[data-testId="item-input"]'));
     await write(content);
 });
 
 step("Click <button_name>", async (button_name) => {
-     await click(button_name);
+    await intercept(apiUrl + "/item",
+        { body: JSON.parse('{ "data": { "id": 1, "content": "buy some milk", "isCompleted": true }}') });
+    await click(button_name);
 });
 
 step("Page contains <content>", async (content) => {
@@ -33,6 +35,6 @@ step("Page contains <content>", async (content) => {
 });
 
 step("Error text says <error_text>", async (error_text) => {
-    assert.ok(await $("#error-div").isVisible());
+    assert.ok(await $("#error").isVisible());
     assert.equal(await text(error_text).exists);
 });
